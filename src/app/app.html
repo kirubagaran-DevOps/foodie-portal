@@ -1,0 +1,60 @@
+<header class="site-header">
+  <a class="brand" href="#top" aria-label="CraveCart home"><span class="brand-mark">C</span>cravecart</a>
+  <nav aria-label="Primary navigation">
+    <a href="#restaurants">Explore</a>
+    <a href="#cart">Cart <span class="cart-count">{{ itemCount }}</span></a>
+  </nav>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">DELIVERED WHILE IT'S HOT</p>
+      <h1>Your next delicious<br />moment is <em>here.</em></h1>
+      <p class="hero-text">Discover local favourites, from comforting classics to something beautifully new.</p>
+      <div class="delivery-bar">
+        <span aria-hidden="true">⌖</span>
+        <div><strong>Delivering to</strong><br /><span>Indiranagar, Bengaluru</span></div>
+        <button type="button">Change</button>
+      </div>
+    </div>
+    <div class="hero-art" aria-hidden="true"><div class="sun"></div><span class="food food-one">🍕</span><span class="food food-two">🍜</span><span class="food food-three">🥑</span></div>
+  </section>
+
+  <section class="content" id="restaurants">
+    <div class="catalogue">
+      <div class="section-heading">
+        <div><p class="eyebrow">PICKED FOR YOU</p><h2>Find your flavour</h2></div>
+        <label class="search-box"><span aria-hidden="true">⌕</span><input [(ngModel)]="search" type="search" placeholder="Search restaurants or food" aria-label="Search restaurants or food" /></label>
+      </div>
+      <div class="filter-row" aria-label="Filter restaurants by cuisine">
+        @for (cuisine of cuisines; track cuisine) {
+          <button class="filter-button" [class.active]="selectedCuisine === cuisine" type="button" (click)="selectedCuisine = cuisine">{{ cuisine }}</button>
+        }
+      </div>
+      <div class="restaurant-grid" aria-live="polite">
+        @for (restaurant of filteredRestaurants; track restaurant.id) {
+          <article class="restaurant-card">
+            <div class="restaurant-image" [style.background]="restaurant.color"><span>{{ restaurant.emoji }}</span></div>
+            <div class="card-content"><div class="restaurant-name">{{ restaurant.name }}</div><div class="restaurant-meta">{{ restaurant.cuisine }} · {{ restaurant.time }}</div>
+              <div class="card-bottom"><span class="rating">★ {{ restaurant.rating }}</span><button class="add-button" type="button" (click)="addToCart(restaurant.id)">ADD · {{ formatPrice(restaurant.price) }}</button></div>
+            </div>
+          </article>
+        } @empty { <div class="no-results">No restaurants match that search. Try another dish or filter.</div> }
+      </div>
+    </div>
+
+    <aside class="cart" id="cart">
+      <div class="cart-heading"><div><p class="eyebrow">YOUR ORDER</p><h2>Cart</h2></div><span class="cart-count">{{ itemCount }}</span></div>
+      <div class="cart-items">
+        @for (item of cartEntries; track item.restaurant.id) {
+          <div class="cart-item"><div><div class="cart-item-name">{{ item.restaurant.dish }}</div><div class="cart-item-price">{{ formatPrice(item.restaurant.price) }} · {{ item.restaurant.name }}</div></div><div class="quantity"><button type="button" (click)="changeQuantity(item.restaurant.id, -1)" [attr.aria-label]="'Remove one ' + item.restaurant.dish">−</button><span>{{ item.quantity }}</span><button type="button" (click)="changeQuantity(item.restaurant.id, 1)" [attr.aria-label]="'Add one ' + item.restaurant.dish">+</button></div></div>
+        } @empty { <div class="empty-cart"><span>🛍️</span>Your cart is waiting for something tasty.</div> }
+      </div>
+      @if (cartEntries.length) {
+        <div class="cart-summary"><div><span>Subtotal</span><strong>{{ formatPrice(subtotal) }}</strong></div><div><span>Delivery fee</span><strong>{{ formatPrice(deliveryFee) }}</strong></div><div class="total"><span>Total</span><strong>{{ formatPrice(total) }}</strong></div><button class="checkout-button" type="button">Continue to checkout <span>→</span></button></div>
+      }
+    </aside>
+  </section>
+</main>
+<footer>Made for good food days · CraveCart demo</footer>
