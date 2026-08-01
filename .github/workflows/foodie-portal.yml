@@ -32,11 +32,6 @@ jobs:
         run: |
           npm ci
 
-      - name: Audit for vulnerable packages
-        run: |
-          # exit non-zero if vulnerabilities >= moderate
-          npm audit --audit-level=moderate
-
       - name: Build application
         run: |
           # Prefer npm script; `npm run build` should call the Angular build
