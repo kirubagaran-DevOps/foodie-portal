@@ -1,0 +1,60 @@
+name: Build and Zip Angular App
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build (optional, defaults to the ref that triggered the workflow)'
+        required: false
+        default: 'main'
+
+jobs:
+  build-and-zip:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # prefer explicit input when triggered manually, otherwise use the triggered ref
+          ref: ${{ github.event.inputs.branch || github.ref }}
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+
+      - name: Audit for vulnerable packages
+        run: |
+          # exit non-zero if vulnerabilities >= moderate
+          npm audit --audit-level=moderate
+
+      - name: Build application
+        run: |
+          # Prefer npm script; `npm run build` should call the Angular build
+          npm run build --if-present
+
+      - name: Create zip of build output
+        run: |
+          if [ -d "dist" ]; then
+            # include the whole dist directory
+            zip -r build-artifact.zip dist
+          else
+            echo "Error: dist directory not found" >&2
+            ls -la
+            exit 1
+          fi
+
+      - name: Upload zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: angular-build-zip
+          path: build-artifact.zip
